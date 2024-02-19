@@ -1,0 +1,43 @@
+version: '3.8'
+
+volumes:
+  mariadb-data:
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: app.Dockerfile
+    env_file:
+      - .env
+
+    volumes:
+      - ..:/workspaces:cached
+
+    ports:
+      # loginserver
+      - 6000:6000/udp
+      - 5998:5998
+      # world
+      - 9000:9000/udp
+      - 9000:9000
+      # ucs
+      - 7778:7778/udp
+      # boat zones
+      - 7375-7400:7375-7400/tcp
+      - 7375-7400:7375-7400/udp
+      # dynamic zones
+      - 7000-7374:7000-7374/tcp
+      - 7000-7374:7000-7374/udp
+
+  db:
+    build:
+      context: .
+      dockerfile: db.Dockerfile
+    restart: unless-stopped
+    volumes:
+      - mariadb-data:/var/lib/MARIADB
+    env_file:
+      - .env
+    ports:
+      - 3306:3306
